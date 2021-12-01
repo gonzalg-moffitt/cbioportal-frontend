@@ -64,6 +64,7 @@ import UserMessager, {
 } from 'shared/components/userMessager/UserMessage';
 import { HelpWidget } from 'shared/components/HelpWidget/HelpWidget';
 import { buildCBioPortalPageUrl } from 'shared/api/urls';
+import IFrameLoader from 'shared/components/iframeLoader/IFrameLoader';
 
 export function initStore(
     appStore: AppStore,
@@ -415,6 +416,49 @@ export default class ResultsViewPage extends React.Component<
                                     store={store}
                                     appStore={this.props.appStore}
                                     urlWrapper={this.urlWrapper}
+                                />
+                            ) : (
+                                <LoadingIndicator
+                                    isLoading={true}
+                                    size={'big'}
+                                    center={true}
+                                />
+                            )}
+                        </MSKTab>
+                    );
+                },
+            },
+            {
+                id: ResultsViewTab.NDEX,
+                hide: () =>
+                    !getServerConfig().show_pathway_mapper ||
+                    !this.resultsViewPageStore.studies.isComplete ||
+                    !this.resultsViewPageStore.remoteNdexUrl.isComplete,
+                getTab: () => {
+                    const showPM =
+                        store.filteredSequencedSampleKeysByGene.isComplete &&
+                        store.oqlFilteredCaseAggregatedDataByOQLLine
+                            .isComplete &&
+                        store.genes.isComplete &&
+                        store.samples.isComplete &&
+                        store.patients.isComplete &&
+                        store.coverageInformation.isComplete &&
+                        store.filteredSequencedSampleKeysByGene.isComplete &&
+                        store.filteredSequencedPatientKeysByGene.isComplete &&
+                        store.selectedMolecularProfiles.isComplete &&
+                        store.oqlFilteredCaseAggregatedDataByUnflattenedOQLLine
+                            .isComplete;
+
+                    return (
+                        <MSKTab
+                            key={14}
+                            id={ResultsViewTab.NDEX}
+                            linkText={'NDEx'}
+                        >
+                            {showPM ? (
+                                <IFrameLoader
+                                    height={800}
+                                    url={`${this.resultsViewPageStore.remoteNdexUrl.result}`}
                                 />
                             ) : (
                                 <LoadingIndicator
